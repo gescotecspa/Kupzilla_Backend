@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Bienvenido a mi aplicación</title>
+    <style>
+        .email-body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            /* background-color: #f4f4f4; */
+            color: #333;
+            line-height: 1.6;
+            
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            /* background-color: #fff; */
+            /* background-image: url("https://res.cloudinary.com/dbwmesg3e/image/upload/v1723120005/TurismoApp/logoCCTDC_lugwff.png");
+            background-size: cover; */
+            height: 100%;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .email-header {
+            font-size: 0.9em;
+            text-align: center;
+            /* background-color: #007bff; */
+            color: #333;
+            padding: 10px;
+            border-radius: 8px 8px 0 0;
+        }
+        .email-title{
+            color: #007a8c;
+        }
+        .email-content {
+            padding: 20px;
+        }
+        .change-content {
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #007a8c;
+            margin-top: 30px;
+        }
+        .email-footer {
+            text-align: center;
+            font-size: 0.9em;
+            color: #666;
+        }
+        .logo {
+            width: 200px;
+            left: 0;
+            height: auto;
+            margin: 0 auto;
+        }
+        .store-buttons {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .store-buttons img {
+            width: 150px;
+            margin: 10px;
+            border-radius: 10px;
+        }
+        a{
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body class="email-body">
+    <div class="email-container">
+        <div class="email-header">
+            <img src="https://res.cloudinary.com/dtogncj3c/image/upload/v1733176659/logoCCTDC_lugwff_dlpe0v.png" alt="Logo" class="logo">
+            <h2 class="email-title">Bienvenido! </h2>
+        </div>
+        <hr>
+        <div class="email-content">
+            <p>Hola, {{ first_name }}, te damos la bienvenida a nuestra aplicación y estamos muy agradecidos de que formes parte de nuestra red de asociados!</p>
+            <p>La credencial adjunta corresponde a {{ email }}, utilice la siguiente información para ingresar:</p>
+            <ul>
+                <!-- <li>Nombre: {{ first_name }}</li> -->
+                <li>Email: {{ email }}</li>
+                <li>Contraseña: {{ password }}</li>
+            </ul>
+            <p class="change-content">Gracias por unirte! Por favor modifique su contraseña provisoria al ingresar.</p>
+        </div>
+        <div class="store-buttons">
+            <a href="https://play.google.com/store/apps/details?id=com.camaradeturismocobquecura.CobquecurApp" target="_blank">
+                <img src="https://res.cloudinary.com/dtogncj3c/image/upload/v1733171387/google600x178_a9jvzl.png" alt="Google Play Store">
+            </a>
+            <a href="https://www.apple.com/app-store/" target="_blank">
+                <img src="https://res.cloudinary.com/dtogncj3c/image/upload/v1733171387/apple600x178_p1rwrn.png" alt="App Store">
+            </a>
+        </div>
+        <div class="email-footer">
+            <p>&copy; 2024 - Todos los derechos reservados</p>
+            <p>Cámara de Comercio, Turismo y Desarrollo de Cobquecura, A.G. (CCTD Cobquecura)</p>
+        </div>
+    </div>
+</body>
+</html>
