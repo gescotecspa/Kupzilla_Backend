@@ -71,8 +71,6 @@ def create_app():
     from app.api.branches_api import branch_api_blueprint
     app.register_blueprint(branch_api_blueprint)
     
-    from app.api.tourist_point_api import tourist_point_api_blueprint
-    app.register_blueprint(tourist_point_api_blueprint)
     
     from app.api.branch_rating_api import branch_rating_api_blueprint
     app.register_blueprint(branch_rating_api_blueprint)

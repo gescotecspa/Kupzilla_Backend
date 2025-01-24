@@ -7,7 +7,7 @@ from flask import url_for
 class ImageManager:
     def __init__(self, upload_folder='upload_image'):
         self.upload_folder = upload_folder
-        self.categories = ['users', 'promotions', 'tourist_points', 'branches', 'media_utils']
+        self.categories = ['users', 'promotions', 'branches', 'media_utils']
         
         # Crear la carpeta principal y las subcarpetas si no existen
         if not os.path.exists(self.upload_folder):
