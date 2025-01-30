@@ -14,7 +14,7 @@ class Config:
     SMTP_USERNAME = os.getenv('SMTP_USERNAME')
     SMTP_PASSWORD = os.getenv('SMTP_PASSWORD')
     SMTP_DEFAULT_SENDER = os.getenv('SMTP_DEFAULT_SENDER')
-    GCS_BUCKET_NAME = os.getenv('GCS_BUCKET_NAME', 'turismo-app-cobquecura')
+    GCS_BUCKET_NAME = os.getenv('GCS_BUCKET_NAME', 'Kupzilla-App')
     
     # GOOGLE_CREDENTIALS = {
     #     "type": os.getenv('GCP_TYPE'),

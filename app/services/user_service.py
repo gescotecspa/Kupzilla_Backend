@@ -82,7 +82,7 @@ class UserService:
             pdf_filename = f"Credential_{first_name}_{last_name}.pdf"
             
             # Enviar correo electrónico de bienvenida usando una plantilla HTML
-            subject = "Bienvenido a nuestra aplicación! CCDT Cobquecura"
+            subject = "Bienvenido a nuestra aplicación! KupzillApp"
             recipients = [email]
             html_body = render_template('email/welcome_email.html', email=email, first_name=first_name)
             send_email(subject, recipients, html_body, pdf_buffer, pdf_filename)
@@ -177,7 +177,7 @@ class UserService:
             # pdf_filename = f"Credential_{first_name}_{last_name}.pdf"
             
             # Enviar correo electrónico de bienvenida usando una plantilla HTML
-            subject = "Bienvenido a nuestra aplicación! CCDT Cobquecura"
+            subject = "Bienvenido a nuestra aplicación! KuplizzApp"
             recipients = [email]
             html_body = render_template('email/welcome_email_partner.html', email=email, first_name=first_name, password=password )
             send_email(subject, recipients, html_body)
