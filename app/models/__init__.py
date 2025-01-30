@@ -7,7 +7,6 @@ from app.models.tourist import Tourist
 from app.models.partner import Partner
 from app.models.branch import Branch
 from app.models.favorite import Favorite
-from app.models.tourist_point import TouristPoint, Image, Rating
 from app.models.branch_rating import BranchRating
 from app.models.tourist_rating import TouristRating
 from app.models.country import Country

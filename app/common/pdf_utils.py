@@ -6,6 +6,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
 from reportlab.lib import colors
+custom_color = colors.Color(81 / 255, 149 / 255, 87 / 255)
 
 def generate_pdf(name, email, user_id):
     buffer = io.BytesIO()
@@ -14,10 +15,10 @@ def generate_pdf(name, email, user_id):
 
     # Añadir título
     c.setFont("Helvetica-Bold", 20)
-    c.drawCentredString(width / 2, height - 1 * inch, "Credencial App Cobquecura")
+    c.drawCentredString(width / 2, height - 1 * inch, "Credencial Kupzilla")
 
     # Descargar logo desde URL
-    logo_url = "https://res.cloudinary.com/dbwmesg3e/image/upload/v1723120005/TurismoApp/logoCCTDC_lugwff.png"
+    logo_url = "https://res.cloudinary.com/dbwmesg3e/image/upload/v1738251832/kupzilla/adaptive-icon_csxszn.png"
     response = requests.get(logo_url)
     logo_img = Image.open(io.BytesIO(response.content))
     logo_img = logo_img.convert("RGBA")
@@ -30,19 +31,19 @@ def generate_pdf(name, email, user_id):
     card_y = height - 6 * inch
     card_width = width - 1.5 * inch
     card_height = 4 * inch
-    c.setStrokeColor(colors.black)
+    c.setStrokeColor(custom_color)
     c.setFillColor(colors.white)
     c.roundRect(card_x, card_y, card_width, card_height, 10, fill=1)
 
     # Añadir logo alineado a la izquierda dentro de la tarjeta
     logo_width = 2 * inch
-    logo_height = 1 * inch
+    logo_height = 0.8 * inch
     logo_x = card_x + 0.5 * inch
     logo_y = card_y + card_height - logo_height - 0.5 * inch
     c.drawInlineImage(logo_img, logo_x, logo_y, logo_width, logo_height)
 
     # Añadir texto debajo del logo y alineado a la izquierda dentro de la tarjeta
-    c.setFillColor(colors.black)
+    c.setFillColor(custom_color)
     c.setFont("Helvetica", 14)
     text_x = logo_x
     text_y = logo_y - 0.75 * inch  # Ajustar para colocar el texto justo debajo del logo
@@ -54,7 +55,7 @@ def generate_pdf(name, email, user_id):
     qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=10, border=4)
     qr.add_data(qr_value)
     qr.make(fit=True)
-    img = qr.make_image(fill='black', back_color='white')
+    img = qr.make_image(fill=custom_color, back_color='white')
     img = img.convert("RGB")
     img_buffer = io.BytesIO()
     img.save(img_buffer, format='PNG')
