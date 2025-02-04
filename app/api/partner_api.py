@@ -38,7 +38,10 @@ class PartnerListResource(Resource):
     def post(self, current_user):
         data = request.get_json()
         partner = PartnerService.create_partner(**data)
-        return jsonify(partner.serialize())
+        if not partner:
+            return {"message": "Error creating partner"}, 400
+    
+        return partner.serialize(), 201
 
 api.add_resource(PartnerResource, '/partners/<int:user_id>')
 api.add_resource(PartnerListResource, '/partners')

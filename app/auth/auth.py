@@ -16,50 +16,48 @@ import os
 from app import db
 
 auth_blueprint = Blueprint('auth', __name__)
+
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        # Leer variable del .env en minúsculas
         is_token_required = os.getenv("token_required", False)
 
         token = None
-        # Verificar cabecera Authorization
+
+        # 🔹 Verificar si la cabecera Authorization está presente
         if 'Authorization' in request.headers:
             parts = request.headers['Authorization'].split()
-            if len(parts) == 2 and parts[0].lower() == 'bearer':
-                token = parts[1]
+            if len(parts) != 2 or parts[0].lower() != 'bearer':
+                return jsonify({"message": "Token is missing or improperly formatted"}), 401  # 🔹 Respuesta en JSON
+            token = parts[1]
 
         if not token:
-            # Si NO hay token
             if is_token_required == "True":
-                # Si .env dice "true", exigimos token
-                rest_abort(401, message="Token is missing!")
+                return jsonify({"message": "Token is missing!"}), 401  # 🔹 Mensaje corregido
             else:
-                # Si .env dice "false", no exigimos token
                 kwargs['current_user'] = None
                 return f(*args, **kwargs)
 
-        # Si hay token, lo validamos
+        # 🔹 Si hay token, lo validamos
         try:
             data = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=["HS256"])
 
-            # Verificar si es un token de invitado
+            # 🔹 Verificar si es un token de invitado
             if data.get("is_guest"):
                 current_user = {"is_guest": True, "guest_id": data.get("guest_id")}
             else:
-                # Token de usuario registrado
                 current_user = User.query.filter_by(email=data.get('email')).first()
                 if not current_user:
-                    rest_abort(404, message="User not found!")
+                    return jsonify({"message": "User not found!"}), 404  # 🔹 Manejo de usuario no encontrado
             
             kwargs['current_user'] = current_user
 
         except jwt.ExpiredSignatureError:
-            rest_abort(401, message="Token has expired!")
-        except jwt.InvalidTokenError as e:
-            rest_abort(401, message=f"Token is invalid: {str(e)}")
+            return make_response(jsonify({"message": "Token has expired!"}), 401) # 🔹 Expiración del token
+        except jwt.InvalidTokenError:
+            return make_response(jsonify({"message": "Token is invalid!"}), 401)  # 🔹 Token inválido
         except Exception as e:
-            rest_abort(500, message=f"Error al validar el token: {str(e)}")
+            return make_response(jsonify({"message": f"Error al validar el token: {str(e)}"}), 500)  # 🔹 Error inesperado
 
         return f(*args, **kwargs)
 
@@ -167,16 +165,15 @@ def signup():
 @auth_blueprint.route('/user', methods=['GET'])
 @token_required
 def get_user(current_user):
-    if isinstance(current_user, dict):
-        #     # Verifica si es un invitado
+    if current_user is None:
+        return jsonify({"message": "No hay usuario autenticado."}), 401  # 🔹 Manejo del caso sin usuario
+
+    if isinstance(current_user, dict):  # Si es invitado
         if current_user.get("is_guest"):
-            print("Es invitado primer ingreso?", current_user.get("is_guest"))
-            return {"message": "Acceso denegado: solo usuarios registrados pueden acceder a esta ruta."}, 403
-    else:
-            # Verifica si el usuario registrado es un invitado
-        if hasattr(current_user, "is_guest") and current_user.is_guest:
-            return {"message": "Acceso denegado: solo usuarios registrados pueden acceder a esta ruta."}, 403
+            return jsonify({"message": "Acceso denegado: solo usuarios registrados pueden acceder a esta ruta."}), 403
+
     return jsonify(current_user.serialize())
+
 
 
 @auth_blueprint.route('/users', methods=['GET'])
@@ -236,11 +233,11 @@ def reset_password_request():
 
     reset_code = generate_reset_code()
     user.reset_code = reset_code
-    user.reset_code_expiration = datetime.datetime.utcnow() + timedelta(hours=1)
+    user.reset_code_expiration = datetime.utcnow() + timedelta(hours=1)
     db.session.commit()
 
-    reset_url = "https://www.cobquecurapp.cl/reset_password"
-    subject = "Password Reset Requested"
+    reset_url = "https://kupzilla.com/reset_password"
+    subject = "Recuperación de contraseña - Kupzilla"
     recipients = [email]
     html_body = render_template('email/reset_password.html', reset_code=reset_code, reset_url=reset_url)
 
@@ -259,7 +256,7 @@ def reset_password():
     if not user:
         return jsonify({'message': 'User not found'}), 404
 
-    if user.reset_code != code or user.reset_code_expiration < datetime.datetime.utcnow():
+    if user.reset_code != code or user.reset_code_expiration < datetime.utcnow():
         return jsonify({'message': 'Invalid or expired reset code'}), 400
 
     hashed_password = generate_password_hash(new_password)
@@ -345,4 +342,3 @@ def signup_partners(current_user):
     return jsonify({
         'created_users': created_users
     }), 201
-
