@@ -53,11 +53,11 @@ def token_required(f):
             kwargs['current_user'] = current_user
 
         except jwt.ExpiredSignatureError:
-            return jsonify({"message": "Token has expired!"}), 401  # 🔹 Expiración del token
+            return make_response(jsonify({"message": "Token has expired!"}), 401) # 🔹 Expiración del token
         except jwt.InvalidTokenError:
-            return jsonify({"message": "Token is invalid!"}), 401  # 🔹 Token inválido
+            return make_response(jsonify({"message": "Token is invalid!"}), 401)  # 🔹 Token inválido
         except Exception as e:
-            return jsonify({"message": f"Error al validar el token: {str(e)}"}), 500  # 🔹 Error inesperado
+            return make_response(jsonify({"message": f"Error al validar el token: {str(e)}"}), 500)  # 🔹 Error inesperado
 
         return f(*args, **kwargs)
 
