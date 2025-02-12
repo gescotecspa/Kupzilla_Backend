@@ -128,9 +128,9 @@ class BranchRatingsLast4WeeksResource(Resource):
 
 api.add_resource(BranchRatingResource, '/branches/<int:branchId>/ratings')
 api.add_resource(BranchRatingUpdateResource, '/branches/ratings/<int:rating_id>')
-api.add_resource(BranchRatingsListResource, '/branches/<int:branch_id>/ratings/all')
+api.add_resource(BranchRatingsListResource, '/branches/<int:branchId>/ratings/all')
 api.add_resource(BranchRatingsListAdminResource, '/branches/admin/<int:branch_id>/ratings/all')
-api.add_resource(BranchAverageRatingResource, '/branches/<int:branch_id>/average_rating')
+api.add_resource(BranchAverageRatingResource, '/branches/<int:branchId>/average_rating')
 api.add_resource(BranchRatingSoftDeleteResource, '/branches/ratings/soft_delete/<int:rating_id>')
 api.add_resource(BranchRatingApproveResource, '/branches/ratings/approve/<int:rating_id>')
 api.add_resource(BranchRatingRejectResource, '/branches/ratings/reject/<int:rating_id>')
