@@ -4,6 +4,7 @@ from flask_cors import CORS
 from flask_migrate import Migrate
 import os
 
+
 # Instancia de SQLAlchemy
 db = SQLAlchemy()
 
@@ -101,8 +102,7 @@ def create_app():
     
     # Importar modelos para asegurarse de que se reconocen al crear la base de datos
     
-    from app.models import user, category, tourist, partner, promotion, branch, favorite, funcionality, role_funcionality, user_role, status, promotion_consumed, app_version
-
+    from app.models import user, category, tourist, partner, promotion, branch, favorite, funcionality, role_funcionality, user_role, status, promotion_consumed, app_version, country, city
     # Importar e inicializar los manejadores de errores
     # from app.common import error_handlers
     # error_handlers.init_app(app)
@@ -110,10 +110,13 @@ def create_app():
     with app.app_context():
         # db.drop_all() NO descomentar esta linea
         db.create_all()
-        from app.services.country_service import CountryService
+        from app.services.country_city_service import CountryCityService
         from app.services.status_load_service import StatusLoadService
-        CountryService.load_countries()
-        StatusLoadService.load_statuses()
+        from app.services.role_load_service import RoleLoadService
 
+        CountryCityService.load_countries_and_cities()
+        StatusLoadService.load_statuses()
+        RoleLoadService.load_roles()
+        
     return app
     
