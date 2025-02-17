@@ -10,13 +10,8 @@ class User(db.Model):
     password = db.Column(db.String(250), nullable=False)
     first_name = db.Column(db.String(120), nullable=False)
     last_name = db.Column(db.String(120), nullable=False)
-    
-    country_id = db.Column(db.Integer, db.ForeignKey('countries.id'), nullable=True)
-    country = db.relationship('Country', backref='users')
-
-    city_id = db.Column(db.Integer, db.ForeignKey('cities.id'), nullable=True)
-    city = db.relationship('City', backref='users')
-    
+    country = db.Column(db.String(120), nullable=False)
+    city = db.Column(db.String(120))
     birth_date = db.Column(db.String(10))
     email = db.Column(db.String(120), nullable=False)
     phone_number = db.Column(db.String(20))
