@@ -15,25 +15,14 @@ def create_app():
     # Configuración de la aplicación
     app.config.from_object('config.Config')
     
-    # @app.route('/upload_image/<path:filename>', methods=['GET'])
-    # def serve_static(filename):
-    #     file_path = os.path.join('upload_image', filename)
-    #     print(f"Ruta completa: {file_path}")
-    #     print("filename____",filename)
-    #     print(os.path.exists(file_path))
-    #     try:
-    #         with open(file_path, 'rb') as f:
-    #             data = f.read()
-    #         return Response(data, mimetype='image/png')
-    #     except FileNotFoundError:
-    #         return jsonify({"error": "Archivo no encontrado"}), 404
-    #     except Exception as e:
-    #         return jsonify({"error": f"Error inesperado: {str(e)}"}), 500
+    # Ruta para servir imágenes de emails
+    @app.route('/static/images/emails/<path:filename>')
+    def serve_email_images(filename):
+        return send_from_directory('static/images/emails', filename)
     
     # Inicializar SQLAlchemy con la aplicación Flask
     db.init_app(app)
     
-
     # Inicializar Flask-Migrate con la aplicación Flask y la instancia de SQLAlchemy
     migrate = Migrate(app, db) # Aplica sobre la base de datos
     
@@ -116,4 +105,3 @@ def create_app():
         StatusLoadService.load_statuses()
 
     return app
-    
