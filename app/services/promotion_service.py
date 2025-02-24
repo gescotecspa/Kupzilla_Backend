@@ -6,7 +6,12 @@ from app.models import Promotion, Branch, Status
 from config import Config
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import joinedload
+from sqlalchemy import text # Nuevos
+from app import db # Nuevos
+from datetime import datetime
 from time import sleep
+
+
 
 class PromotionService:
     @staticmethod
@@ -227,6 +232,55 @@ class PromotionService:
             print(f"Error al actualizar promociones: {e}")
             db.session.rollback()
             return None
+
+
+    # Filto
+
+    @staticmethod
+    def get_promotions_by_filter(category_id=None, start_date=None, expiration_date=None, keyword=None, user_id=None):
+        query = text("""
+            SELECT * FROM get_promotions_by_filter(:category_id, :start_date, :expiration_date, :keyword, :user_id)
+        """)
+
+        # Convertir fechas a objetos datetime.date si no son None
+        def to_date(value):
+            return datetime.strptime(value, "%Y-%m-%d").date() if isinstance(value, str) else value
+
+        params = {
+            "category_id": category_id if category_id is not None else None,
+            "start_date": to_date(start_date),
+            "expiration_date": to_date(expiration_date),
+            "keyword": keyword if keyword else None,
+            "user_id": user_id if user_id is not None else None
+        }
+
+        result = db.session.execute(query, params)
+        promotions = result.fetchall()
+
+        return [
+            {
+                "promotion_id": row[0],   # ID de la promoción
+                "titulo": row[1],         # Nombre de la promoción
+                "descripcion": row[2],    # Descripción
+                "fecha_inicio": row[3],   # Fecha de inicio
+                "fecha_expiracion": row[4], # Fecha de expiración
+                "cantidad_disponible": row[5], # Cantidad disponible
+                "nombre_comercio": row[6],  # Nombre del comercio
+                "porcentaje_descuento": row[7], # Porcentaje de descuento
+                "usuario_id": row[8],     # ID del usuario
+                "imagen_url": row[9]      # Imagen de la promoción (la primera)
+            }
+            for row in promotions
+        ]
+
+
+
+
+
+
+
+
+    
     #eliminar imagenes google storage
     # @staticmethod
     # def delete_promotion_images(image_ids):
