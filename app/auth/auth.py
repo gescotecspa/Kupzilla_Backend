@@ -236,7 +236,7 @@ def reset_password_request():
     user.reset_code_expiration = datetime.utcnow() + timedelta(hours=1)
     db.session.commit()
 
-    reset_url = "https://kupzilla.com/reset_password"
+    reset_url = "https://www.kupzilla.com/reset_password"
     subject = "Recuperación de contraseña - Kupzilla"
     recipients = [email]
     html_body = render_template('email/reset_password.html', reset_code=reset_code, reset_url=reset_url)
