@@ -16,9 +16,9 @@ def create_app():
     app.config.from_object('config.Config')
     
     # Ruta para servir imágenes de emails
-    @app.route('/static/images/emails/<path:filename>')
+    @app.route('/upload_image/static/<path:filename>')
     def serve_email_images(filename):
-        return send_from_directory('static/images/emails', filename)
+        return send_from_directory('/upload_image/static', filename)
     
     # Inicializar SQLAlchemy con la aplicación Flask
     db.init_app(app)
