@@ -24,5 +24,24 @@ class ImageResource(Resource):
         except Exception as e:
             return jsonify({"error": f"Error inesperado: {str(e)}"}), 500
 
+class StaticImageResource(Resource):
+    def get(self, filename):
+        # Definir la ruta completa dentro de 'static'
+        file_path = os.path.join('static', filename)
+        print(f"Ruta completa: {file_path}")
+        print("filename____", filename)
+        print(os.path.exists(file_path))
+
+        try:
+            # Leer el archivo y devolverlo como respuesta
+            with open(file_path, 'rb') as f:
+                data = f.read()
+            return Response(data, mimetype='image/png')
+        except FileNotFoundError:
+            return jsonify({"error": "Archivo no encontrado"}), 404
+        except Exception as e:
+            return jsonify({"error": f"Error inesperado: {str(e)}"}), 500
+
+api.add_resource(StaticImageResource, '/static/<path:filename>')
 # Agregar el recurso a la API
 api.add_resource(ImageResource, '/upload_image/<path:filename>')
