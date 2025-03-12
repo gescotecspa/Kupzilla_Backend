@@ -54,9 +54,7 @@ class PromotionByPartnerResource(Resource):
     @token_required
     def get(self, current_user, partner_id):
         promotions = PromotionService.get_promotions_by_partner(partner_id)
-        if promotions:
-            return jsonify([promotion.serialize(include_user_info=False) for promotion in promotions])
-        return {'message': 'No promotions found for this partner.'}, 404
+        return jsonify([promotion.serialize(include_user_info=False) for promotion in promotions])
 
 class PromotionBulkDeleteResource(Resource):
     @token_required
