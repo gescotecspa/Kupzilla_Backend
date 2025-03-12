@@ -38,6 +38,13 @@ class TermsAndConditionsListResource(Resource):
             return terms_last_version.serialize(), 200
         return {'message': 'No terms and conditions found'}, 404
 
+#Este esta parte del código da error, ver el cambio, en la base de datos si anda y sale bien los terminos
+    def get(self, language_code):
+        terms_last_version = TermsAndConditionsService.get_latest_version(language_code)
+        if terms_last_version:
+            return terms_last_version.serialize(), 200
+        return {'message': f'No terms and conditions found for language: {language_code}'}, 404 
+
     @token_required
     def post(self, current_user):
         data = request.get_json()
