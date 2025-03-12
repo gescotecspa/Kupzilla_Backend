@@ -84,7 +84,7 @@ def login():
 
     user = UserService.get_user_by_email(data['email'])
     if not user:
-        return jsonify({'message': 'No existe el usuario'}), 404
+        return jsonify({'error_code': 'INVALID_USER'}), 404 # Aca en el usuario si no lo encuentra
 
     if check_password_hash(user.password, data['password']):
         try:
@@ -117,7 +117,8 @@ def login():
             db.session.rollback()  # Deshacer cambios en caso de error
             return jsonify({'message': f'Error al procesar el login: {str(e)}'}), 500
 
-    return jsonify({'message': 'Contraseña inválida'}), 401
+    return jsonify({'error_code': 'INVALID_PASSWORD'}), 401 # Lo mismo pero en el usuario 
+
 
 
 @auth_blueprint.route('/guest-login', methods=['POST'])
