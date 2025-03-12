@@ -3,13 +3,14 @@ from app.models.terms_and_conditions import TermsAndConditions
 from datetime import datetime
 from app.models.user import User
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import text
 
 class TermsAndConditionsService:
 
     @staticmethod
     def get_latest_version():
         return TermsAndConditions.query.order_by(TermsAndConditions.created_at.desc()).first()
-
+        
     @staticmethod
     def get_all_terms():
         return TermsAndConditions.query.all()
