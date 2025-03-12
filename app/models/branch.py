@@ -21,8 +21,8 @@ class Branch(db.Model):
     status = db.relationship('Status') 
 
     ratings = db.relationship('BranchRating', back_populates='branch', lazy=True)
-    country_id = db.Column(db.Integer, db.ForeignKey('countries.id'), nullable=False)
-    city_id = db.Column(db.Integer, db.ForeignKey('cities.id'), nullable=False)
+    country_id = db.Column(db.Integer, db.ForeignKey('countries.id'), nullable=True)
+    city_id = db.Column(db.Integer, db.ForeignKey('cities.id'), nullable=True)
     country = db.relationship('Country', backref='branches')
     city = db.relationship('City', backref='branches')
     
