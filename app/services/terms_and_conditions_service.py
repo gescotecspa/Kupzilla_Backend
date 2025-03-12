@@ -11,7 +11,7 @@ class TermsAndConditionsService:
     def get_latest_version():
         return TermsAndConditions.query.order_by(TermsAndConditions.created_at.desc()).first()
     
-    def get_latest_version(language_code=None):
+    def get_latest_version_language(language_code=None):
         #buscamos el termino con su idioma correspondiente 
         sql = text("SELECT * FROM terms_get_latest_by_language(:p_language_code)")
         latest_terms = db.session.execute(sql, {"p_language_code": language_code}).fetchone()
@@ -91,4 +91,3 @@ class TermsAndConditionsService:
         user.terms_accepted_at = datetime.utcnow()
         db.session.commit()
         return user
-        
