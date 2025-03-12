@@ -33,6 +33,13 @@ class CategoryListResource(Resource):
         data = request.get_json()
         category = CategoryService.create_category(data['name'])
         return jsonify(category.serialize())
+    
+class CategoryListByLanguage(Resource):
+    def get(self, language_code):
+        categories = CategoryService.get_by_language(language_code)
+        return jsonify(categories)
+
 
 api.add_resource(CategoryResource, '/categories/<int:category_id>')
 api.add_resource(CategoryListResource, '/categories')
+api.add_resource(CategoryListByLanguage, '/categoriesByLanguage/<string:language_code>')
