@@ -85,7 +85,7 @@ def create_app():
     
     # Importar modelos para asegurarse de que se reconocen al crear la base de datos
     
-    from app.models import user, category, tourist, partner, promotion, branch, favorite, funcionality, role_funcionality, user_role, status, promotion_consumed, app_version
+    from app.models import user, category, tourist, partner, promotion, branch, favorite, funcionality, role_funcionality, user_role, status, promotion_consumed, app_version,country, city
 
     # Importar e inicializar los manejadores de errores
     # from app.common import error_handlers

@@ -11,7 +11,7 @@ class BranchService:
         return Branch.query.get(branch_id)
 
     @staticmethod
-    def create_branch(partner_id, name, description, address, latitude, longitude, status_id, image_data=None):
+    def create_branch(partner_id, name, description, address, latitude, longitude, status_id, city_id, country_id, image_data=None):
         # Manejo de la imagen con ImageManager
         image_url = None
         if image_data:
@@ -29,14 +29,16 @@ class BranchService:
             latitude=latitude,
             longitude=longitude,
             status_id=status_id,
-            image_url=image_url
+            image_url=image_url,
+            country_id=country_id,
+            city_id=city_id
         )
         db.session.add(new_branch)
         db.session.commit()
         return new_branch
 
     @staticmethod
-    def update_branch(branch_id, partner_id=None, name=None, description=None, address=None, latitude=None, longitude=None, status_id=None, image_data=None):
+    def update_branch(branch_id, partner_id=None, name=None, description=None, address=None, latitude=None, longitude=None, status_id=None, city_id=None, country_id=None, image_data=None):
         branch = BranchService.get_branch_by_id(branch_id)
         if branch:
             if partner_id is None:
@@ -48,7 +50,7 @@ class BranchService:
                 filename = f"branches/{partner_id}/{name.replace(' ', '_')}_image_{timestamp}.png"
                 category = 'branches'
                 image_url = image_manager.upload_image(image_data, filename, category)
-                branch.image_url = image_url
+                branch.image_url = image_url,
 
             if partner_id is not None:
                 branch.partner_id = partner_id
@@ -95,6 +97,10 @@ class BranchService:
 
                     # Actualizar el estado de la sucursal
                     branch.status_id = status_id
+            if country_id is not None: # Agregado
+                branch.country_id = country_id
+            if city_id is not None: # Agregado
+                branch.city_id = city_id
 
             db.session.commit()
         return branch
@@ -116,16 +122,6 @@ class BranchService:
             .order_by(Branch.name.asc())
             .all()
         )
-
-    @staticmethod
-    def get_all_branches_admin():
-        return (
-            Branch.query.join(Status)
-            .filter(Status.name != 'deleted')
-            .order_by(Branch.name.asc())
-            .all()
-        )
-
     @staticmethod
     def get_branches_by_partner_id(partner_id):
         return (

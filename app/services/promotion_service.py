@@ -6,12 +6,8 @@ from app.models import Promotion, Branch, Status
 from config import Config
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import joinedload
-from sqlalchemy import text # Nuevos
-from app import db # Nuevos
-from datetime import datetime
 from time import sleep
-
-
+from sqlalchemy import func
 
 class PromotionService:
     @staticmethod
@@ -72,7 +68,7 @@ class PromotionService:
         return new_promotion
 
     @staticmethod
-    def update_promotion(promotion_id, title=None, description=None, start_date=None, expiration_date=None, qr_code=None, discount_percentage=None, available_quantity=None, partner_id=None, branch_id=None, category_ids=None, images=None, status_id=None):
+    def update_promotion(promotion_id, title=None, description=None, start_date=None, expiration_date=None, qr_code=None, discount_percentage=None, available_quantity=None, partner_id=None, branch_id=None, category_ids=None, images=None, status_id=None, main_image_id=None):
         # Obtener la promoción existente
         promotion = PromotionService.get_promotion_by_id(promotion_id)
         if promotion:
@@ -119,6 +115,23 @@ class PromotionService:
                     image_url = image_manager.upload_image(image_data['data'], filename, category)
                     new_image = PromotionImage(promotion_id=promotion_id, image_path=image_url)
                     db.session.add(new_image)
+                    
+            # Marcar la imagen principal si se proporciona un ID válido
+            if main_image_id is not None:
+                # Verificar que la imagen exista y pertenezca a la promoción
+                main_image = PromotionImage.query.filter_by(
+                    image_id=main_image_id,
+                    promotion_id=promotion_id
+                ).first()
+
+                if not main_image:
+                    raise ValueError("La imagen principal no existe o no pertenece a esta promoción")
+
+                # Desmarcar la imagen principal actual (si existe)
+                PromotionImage.query.filter_by(promotion_id=promotion_id, is_main=True).update({"is_main": False})
+
+                # Marcar la nueva imagen principal
+                main_image.is_main = True
             
             # Guardar todos los cambios en la base de datos
             db.session.commit()
@@ -232,55 +245,44 @@ class PromotionService:
             print(f"Error al actualizar promociones: {e}")
             db.session.rollback()
             return None
-
-
-    # Filto
-
+        
     @staticmethod
-    def get_promotions_by_filter(category_id=None, start_date=None, expiration_date=None, keyword=None, user_id=None):
-        query = text("""
-            SELECT * FROM get_promotions_by_filter(:category_id, :start_date, :expiration_date, :keyword, :user_id)
-        """)
-
-        # Convertir fechas a objetos datetime.date si no son None
-        def to_date(value):
-            return datetime.strptime(value, "%Y-%m-%d").date() if isinstance(value, str) else value
-
-        params = {
-            "category_id": category_id if category_id is not None else None,
-            "start_date": to_date(start_date),
-            "expiration_date": to_date(expiration_date),
-            "keyword": keyword if keyword else None,
-            "user_id": user_id if user_id is not None else None
-        }
-
-        result = db.session.execute(query, params)
-        promotions = result.fetchall()
-
-        return [
-            {
-                "promotion_id": row[0],   # ID de la promoción
-                "titulo": row[1],         # Nombre de la promoción
-                "descripcion": row[2],    # Descripción
-                "fecha_inicio": row[3],   # Fecha de inicio
-                "fecha_expiracion": row[4], # Fecha de expiración
-                "cantidad_disponible": row[5], # Cantidad disponible
-                "nombre_comercio": row[6],  # Nombre del comercio
-                "porcentaje_descuento": row[7], # Porcentaje de descuento
-                "usuario_id": row[8],     # ID del usuario
-                "imagen_url": row[9]      # Imagen de la promoción (la primera)
-            }
-            for row in promotions
-        ]
-
-
-
-
-
-
-
-
+    def get_active_promotions_by_city(city_id):
+        active_status = Status.query.filter_by(name='active').first()  
+        if not active_status:
+            return None
+        
+        branches = Branch.query.filter_by(city_id=city_id).all()
+        
+        if not branches:
+            return []
+        
+        active_promotions = Promotion.query.filter(
+            Promotion.branch_id.in_([branch.branch_id for branch in branches]),
+            Promotion.status_id == active_status.id,
+            Promotion.expiration_date >= func.current_date() 
+        ).all()
+        return active_promotions
     
+    @staticmethod
+    def get_active_promotions_by_country(country_id):
+        active_status = Status.query.filter_by(name='active').first()
+
+        if not active_status:
+            return None
+        
+        branches = Branch.query.filter_by(country_id=country_id).all()
+        
+        if not branches:
+            return []
+        
+        active_promotions = Promotion.query.filter(
+            Promotion.branch_id.in_([branch.branch_id for branch in branches]),
+            Promotion.status_id == active_status.id,
+            Promotion.expiration_date >= func.current_date()  # Aseguramos que la fecha de expiración sea posterior a la fecha actual
+        ).all()
+        
+        return active_promotions
     #eliminar imagenes google storage
     # @staticmethod
     # def delete_promotion_images(image_ids):

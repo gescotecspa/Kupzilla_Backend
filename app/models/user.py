@@ -10,8 +10,13 @@ class User(db.Model):
     password = db.Column(db.String(250), nullable=False)
     first_name = db.Column(db.String(120), nullable=False)
     last_name = db.Column(db.String(120), nullable=False)
-    country = db.Column(db.String(120), nullable=False)
-    city = db.Column(db.String(120))
+    
+    country_id = db.Column(db.Integer, db.ForeignKey('countries.id'), nullable=True)
+    country = db.relationship('Country', backref='users')
+
+    city_id = db.Column(db.Integer, db.ForeignKey('cities.id'), nullable=True)
+    city = db.relationship('City', backref='users')
+    
     birth_date = db.Column(db.String(10))
     email = db.Column(db.String(120), nullable=False)
     phone_number = db.Column(db.String(20))
@@ -31,6 +36,7 @@ class User(db.Model):
     app_version = db.Column(db.String(20), nullable=True)  # Versión de la app
     platform = db.Column(db.String(50), nullable=True)     # ej. Android, iOS
     last_login_at = db.Column(db.DateTime, nullable=True)
+    registration_date = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
     
     def serialize(self):
         local_tz = pytz.timezone('America/Santiago')
@@ -44,8 +50,8 @@ class User(db.Model):
             'user_id': self.user_id,
             'first_name': self.first_name,
             'last_name': self.last_name,
-            'country': self.country,
-            'city': self.city,
+            'country': self.country.serialize() if self.country else None,
+            'city': self.city.serialize() if self.city else None,
             'birth_date': self.birth_date,
             'email': self.email,
             'phone_number': self.phone_number,
@@ -59,4 +65,5 @@ class User(db.Model):
             'app_version': self.app_version,
             'platform': self.platform,
             'last_login_at': self.last_login_at.strftime('%Y-%m-%dT%H:%M:%S %z') if self.last_login_at else None,
+            'user_registration_date': self.registration_date.strftime('%Y-%m-%dT%H:%M:%S %z') if self.registration_date else None
         }

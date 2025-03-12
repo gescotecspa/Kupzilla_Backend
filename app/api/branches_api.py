@@ -49,23 +49,22 @@ class BranchListResource(Resource):
 class PartnerBranchesResource(Resource):
     @token_required
     def get(self, current_user, partnerId):
-        
+        # if isinstance(current_user, dict):
+        #     # Verifica si es un invitado
+        #     if current_user.get("is_guest"):
+        #         print("Es invitado primer ingreso?", current_user.get("is_guest"))
+        #         return {"message": "Acceso denegado: solo usuarios registrados pueden acceder a esta ruta."}, 403
+        # else:
+        #     # Verifica si el usuario registrado es un invitado
+        #     if hasattr(current_user, "is_guest") and current_user.is_guest:
+        #         print("Es invitado segundo?", current_user.is_guest)
+        #         return {"message": "Acceso denegado: solo usuarios registrados pueden acceder a esta ruta."}, 403
+
         branches = BranchService.get_branches_by_partner_id(partnerId)
         if branches:
             return jsonify([branch.serialize() for branch in branches])
         return branches, 200
     
-
-class AdminBranchesResource(Resource):
-    @token_required
-    def get(self, current_user):
-        branches = BranchService.get_all_branches_admin()
-        if branches:
-            return jsonify([branch.serialize() for branch in branches])
-        return branches, 200
-
-
 api.add_resource(BranchResource, '/branches/<int:branch_id>')
 api.add_resource(BranchListResource, '/branches')
 api.add_resource(PartnerBranchesResource, '/partners/<int:partnerId>/branches')
-api.add_resource(AdminBranchesResource, '/branches_admin')
