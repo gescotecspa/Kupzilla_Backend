@@ -53,11 +53,11 @@ def token_required(f):
             kwargs['current_user'] = current_user
 
         except jwt.ExpiredSignatureError:
-            return make_response(jsonify({"message": "Token has expired!"}), 401) # 🔹 Expiración del token
+            return jsonify({"message": "Token has expired!"}), 401  # 🔹 Expiración del token
         except jwt.InvalidTokenError:
-            return make_response(jsonify({"message": "Token is invalid!"}), 401)  # 🔹 Token inválido
+            return jsonify({"message": "Token is invalid!"}), 401  # 🔹 Token inválido
         except Exception as e:
-            return make_response(jsonify({"message": f"Error al validar el token: {str(e)}"}), 500)  # 🔹 Error inesperado
+            return jsonify({"message": f"Error al validar el token: {str(e)}"}), 500  # 🔹 Error inesperado
 
         return f(*args, **kwargs)
 
@@ -84,7 +84,7 @@ def login():
 
     user = UserService.get_user_by_email(data['email'])
     if not user:
-        return jsonify({'message': 'No existe el usuario'}), 404
+        return jsonify({'error_code': 'INVALID_USER'}), 404 # Aca en el usuario si no lo encuentra
 
     if check_password_hash(user.password, data['password']):
         try:
@@ -103,7 +103,7 @@ def login():
             token = jwt.encode(
                 {
                     'email': user.email,
-                    'exp': datetime.now(timezone.utc) + timedelta(hours=3)
+                    'exp': datetime.now(timezone.utc) + timedelta(hours=1)
                 },
                 current_app.config['SECRET_KEY'],
                 algorithm="HS256"
@@ -117,7 +117,8 @@ def login():
             db.session.rollback()  # Deshacer cambios en caso de error
             return jsonify({'message': f'Error al procesar el login: {str(e)}'}), 500
 
-    return jsonify({'message': 'Contraseña inválida'}), 401
+    return jsonify({'error_code': 'INVALID_PASSWORD'}), 401 # Lo mismo pero en el usuario 
+
 
 
 @auth_blueprint.route('/guest-login', methods=['POST'])
@@ -236,7 +237,7 @@ def reset_password_request():
     user.reset_code_expiration = datetime.utcnow() + timedelta(hours=1)
     db.session.commit()
 
-    reset_url = "https://kupzilla.com/reset_password"
+    reset_url = "https://www.kupzilla.com/reset_password"
     subject = "Recuperación de contraseña - Kupzilla"
     recipients = [email]
     html_body = render_template('email/reset_password.html', reset_code=reset_code, reset_url=reset_url)
