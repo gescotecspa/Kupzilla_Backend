@@ -65,6 +65,13 @@ class PartnerBranchesResource(Resource):
             return jsonify([branch.serialize() for branch in branches])
         return branches, 200
     
+class ActiveBranchesByCountryResource(Resource):
+    @token_required
+    def get(self, current_user, country_id):
+        branches = BranchService.get_active_branches_by_country(country_id)
+        return jsonify([branch.serialize() for branch in branches])
+    
 api.add_resource(BranchResource, '/branches/<int:branch_id>')
 api.add_resource(BranchListResource, '/branches')
 api.add_resource(PartnerBranchesResource, '/partners/<int:partnerId>/branches')
+api.add_resource(ActiveBranchesByCountryResource, '/countries/<int:country_id>/branches')

@@ -133,3 +133,15 @@ class BranchService:
         .order_by(Branch.name.asc())
         .all()
     )
+        
+    @staticmethod
+    def get_active_branches_by_country(country_id):
+        return (
+        Branch.query.join(Status)
+        .filter(
+            Branch.country_id == country_id,
+            Status.name == 'active'
+        )
+        .order_by(Branch.name.asc())
+        .all()
+    )
