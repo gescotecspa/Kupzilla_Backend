@@ -17,14 +17,20 @@ def generate_pdf(name, email, user_id):
     c.setFont("Helvetica-Bold", 20)
     c.drawCentredString(width / 2, height - 1 * inch, "Credencial Kupzilla")
 
-    # Descargar logo desde URL
+    # Descargar logo desde URL con manejo de errores
     logo_url = "https://kz-back-gescotec.kupzilla.com/upload_image/kup.png"
-    response = requests.get(logo_url)
-    logo_img = Image.open(io.BytesIO(response.content))
-    logo_img = logo_img.convert("RGBA")
-    white_bg = Image.new("RGBA", logo_img.size, "WHITE")
-    white_bg.paste(logo_img, (0, 0), logo_img)
-    logo_img = white_bg.convert("RGB")
+    try:
+        response = requests.get(logo_url, timeout=10)  # Tiempo de espera de 10 segundos
+        response.raise_for_status()  # Lanza una excepción si la respuesta no es OK
+        logo_img = Image.open(io.BytesIO(response.content))
+        logo_img = logo_img.convert("RGBA")
+        white_bg = Image.new("RGBA", logo_img.size, "WHITE")
+        white_bg.paste(logo_img, (0, 0), logo_img)
+        logo_img = white_bg.convert("RGB")
+    except requests.exceptions.RequestException as e:
+        print(f"Error al descargar el logo: {e}")
+        # Usar una imagen predeterminada si no se puede descargar el logo
+        logo_img = Image.new("RGB", (200, 100), color=(255, 255, 255))
 
     # Añadir recuadro tipo tarjeta
     card_x = 0.75 * inch
