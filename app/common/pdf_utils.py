@@ -1,4 +1,5 @@
 import io
+import os
 import qrcode
 import requests
 from PIL import Image
@@ -18,11 +19,11 @@ def generate_pdf(name, email, user_id):
     c.drawCentredString(width / 2, height - 1 * inch, "Credencial Kupzilla")
 
     # Descargar logo desde URL con manejo de errores
-    logo_url = "https://kz-back-gescotec.kupzilla.com/upload_image/kup.png"
+    logo_path = os.path.join(os.path.dirname(__file__), "kup.png")
+
     try:
-        response = requests.get(logo_url, timeout=10)  # Tiempo de espera de 10 segundos
-        response.raise_for_status()  # Lanza una excepción si la respuesta no es OK
-        logo_img = Image.open(io.BytesIO(response.content))
+        # Intentar abrir la imagen local
+        logo_img = Image.open(logo_path)
         logo_img = logo_img.convert("RGBA")
         white_bg = Image.new("RGBA", logo_img.size, "WHITE")
         white_bg.paste(logo_img, (0, 0), logo_img)
@@ -43,7 +44,7 @@ def generate_pdf(name, email, user_id):
 
     # Añadir logo alineado a la izquierda dentro de la tarjeta
     logo_width = 2 * inch
-    logo_height = 0.8 * inch
+    logo_height = 2 * inch
     logo_x = card_x + 0.5 * inch
     logo_y = card_y + card_height - logo_height - 0.5 * inch
     c.drawInlineImage(logo_img, logo_x, logo_y, logo_width, logo_height)
