@@ -63,7 +63,7 @@ class ImageManager:
             os.makedirs(user_folder)
         else:
             # Vaciar la carpeta si la categoría es 'users' o 'branches'
-            if category in ['users', 'branches']:
+            if category in ['users']:
                 for file in os.listdir(user_folder):
                     file_path = os.path.join(user_folder, file)
                     if os.path.isfile(file_path):
@@ -87,7 +87,7 @@ class ImageManager:
 
         return image_url
 
-    def resize_image(self, image, max_size=(500, 500)):
+    def resize_image(self, image, max_size=(700, 700)):
         """Redimensiona la imagen manteniendo la relación de aspecto."""
         image.thumbnail(max_size, Image.Resampling.LANCZOS)
         return image

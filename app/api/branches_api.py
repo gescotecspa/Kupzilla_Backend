@@ -70,7 +70,16 @@ class ActiveBranchesByCountryResource(Resource):
     def get(self, current_user, country_id):
         branches = BranchService.get_active_branches_by_country(country_id)
         return jsonify([branch.serialize() for branch in branches])
-    
+class BranchImagesResource(Resource):
+    @token_required
+    def delete(self, current_user):
+        data = request.get_json()
+        image_ids = data.get("image_ids", [])
+
+        BranchService.delete_branch_images(image_ids)
+        return {'message': 'Images deleted successfully'}, 200
+
+api.add_resource(BranchImagesResource, '/branches/images')
 api.add_resource(BranchResource, '/branches/<int:branch_id>')
 api.add_resource(BranchListResource, '/branches')
 api.add_resource(PartnerBranchesResource, '/partners/<int:partnerId>/branches')
