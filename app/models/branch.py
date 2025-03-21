@@ -25,7 +25,8 @@ class Branch(db.Model):
     city_id = db.Column(db.Integer, db.ForeignKey('cities.id'), nullable=True)
     country = db.relationship('Country', backref='branches')
     city = db.relationship('City', backref='branches')
-    
+    images = db.relationship('BranchImage', back_populates='branch', cascade="all, delete-orphan")
+
     def average_rating(self):
         # Calcular el promedio de las calificaciones de esta sucursal
         approved_status = Status.query.filter_by(name='approved').first()
@@ -53,6 +54,7 @@ class Branch(db.Model):
             "longitude": self.longitude,
             "status": self.status.serialize() if self.status else None,
             "image_url": self.image_url,
+            "images": [image.serialize() for image in self.images],
             "average_rating": self.average_rating(),
             "country": self.country.serialize() if self.country else None,
             "city": self.city.serialize() if self.city else None
@@ -60,3 +62,19 @@ class Branch(db.Model):
 
     def __repr__(self):
         return f'<Branch {self.name}>'
+    
+class BranchImage(db.Model):
+    __tablename__ = 'branch_images'
+
+    image_id = db.Column(db.Integer, primary_key=True)
+    branch_id = db.Column(db.Integer, db.ForeignKey('branches.branch_id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False)
+    image_url = db.Column(db.String(255), nullable=False)
+    is_main = db.Column(db.Boolean, default=False)
+    branch = db.relationship('Branch', back_populates='images')
+    
+    def serialize(self):
+        return {
+            "image_id": self.image_id,
+            "image_url": self.image_url,
+            "is_main": self.is_main
+        }
