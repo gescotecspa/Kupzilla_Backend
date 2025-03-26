@@ -4,7 +4,7 @@ from app.models.user import User
 from app import db
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash, check_password_hash
-from ..common.email_utils import send_email
+from ..common.email_utils import send_email, send_email_partner
 from flask import render_template
 from ..common.pdf_utils import generate_pdf
 from ..common.image_manager import ImageManager
@@ -99,7 +99,7 @@ class UserService:
             subject = "Bienvenido a nuestra aplicación! Kupzilla"
             recipients = [email]
             html_body = render_template('email/welcome_email.html', email=email, first_name=first_name)
-            send_email(subject, recipients, html_body, pdf_buffer, pdf_filename)
+            send_email(subject, recipients, first_name, email, pdf_buffer, pdf_filename)
 
         except IntegrityError:
             db.session.rollback()
@@ -203,15 +203,25 @@ class UserService:
         status = Status.query.get(status_id)
         if not status:
             raise ValueError("Invalid status ID provided.")
-        
+            # Obtener el objeto Country (como en update_user)
+        country_obj = Country.query.get(country)
+        if not country_obj:
+            raise ValueError(f"El país con ID {country} no existe.")
+
+        # Obtener el objeto City (si se proporciona)
+        city_obj = None
+        if city:
+            city_obj = City.query.get(city)
+            if not city_obj:
+                raise ValueError(f"La ciudad con ID {city} no existe.")
         new_user = User(
             password=hashed_password, 
             first_name=first_name, 
             last_name=last_name, 
-            country=country, 
+            country=country_obj, 
             email=email, 
             status=status, 
-            city=city, 
+            city=city_obj, 
             birth_date=birth_date, 
             phone_number=phone_number, 
             gender=gender, 
@@ -222,15 +232,11 @@ class UserService:
         try:
             db.session.commit()
             
-            # Generar PDF con QR
-            # pdf_buffer = generate_pdf(f"{first_name} {last_name}", email)
-            # pdf_filename = f"Credential_{first_name}_{last_name}.pdf"
-            
             # Enviar correo electrónico de bienvenida usando una plantilla HTML
             subject = "Bienvenido a nuestra aplicación! KuplizzApp"
             recipients = [email]
             html_body = render_template('email/welcome_email_partner.html', email=email, first_name=first_name, password=password )
-            send_email(subject, recipients, html_body)
+            send_email_partner(subject, recipients, first_name, email, password)
 
         except IntegrityError:
             db.session.rollback()

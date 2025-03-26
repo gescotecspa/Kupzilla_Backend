@@ -41,6 +41,12 @@
         .email-content {
             padding: 20px;
         }
+        .email-item {
+            flex-direction: row;
+            display: flex;
+            align-content: center;
+            align-items: center;
+        }
         .change-content {
             font-size: 0.9em;
             font-weight: bold;
@@ -71,6 +77,9 @@
         a{
             text-decoration: none;
         }
+        h4{
+            margin-left: 20px;
+        }
     </style>
 </head>
 <body class="email-body">
@@ -85,8 +94,8 @@
             <p>The attached credential corresponds to {{ email }}, use the following information to enter:</p>
             <ul>
                 <!-- <li>Nombre: {{ first_name }}</li> -->
-                <li>Email: {{ email }}</li>
-                <li>Password: {{ password }}</li>
+                <li class="email-item">Email: <h4>{{ email }}</h4></li>
+                <li class="email-item">Password: <h4>{{ password }}</h4></li>
             </ul>
             <p class="change-content">Thanks for joining! Please change your temporary password upon login.</p>
         </div>

@@ -10,7 +10,7 @@ from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from ..models.user import User
 from ..services.user_service import UserService
-from ..common.email_utils import send_email
+from ..common.email_utils import send_email, send_email_reset_password
 from datetime import datetime, timedelta, timezone
 import os
 from app import db
@@ -242,9 +242,13 @@ def reset_password_request():
     recipients = [email]
     html_body = render_template('email/reset_password.html', reset_code=reset_code, reset_url=reset_url)
 
-    send_email(subject, recipients, html_body)
+    email_sent = send_email_reset_password(subject, recipients, user.first_name, email, reset_code)
 
-    return jsonify({'message': 'Password reset email sent'}), 200
+
+    if email_sent:
+        return jsonify({'message': 'Password reset email sent'}), 200
+    else:
+        return jsonify({'message': 'Error sending email'}), 500
 
 @auth_blueprint.route('/reset_password/new_password', methods=['PUT'])
 def reset_password():
