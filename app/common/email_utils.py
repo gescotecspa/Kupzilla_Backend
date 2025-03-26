@@ -19,6 +19,7 @@ def send_email(subject, recipients, html_body, pdf_buffer=None, pdf_filename=Non
         msg.attach(part2)
 
     with smtplib.SMTP(current_app.config['SMTP_SERVER'], current_app.config['SMTP_PORT']) as server:
+        server.set_debuglevel(1)
         server.starttls()
         server.login(current_app.config['SMTP_USERNAME'], current_app.config['SMTP_PASSWORD'])
         server.sendmail(current_app.config['SMTP_DEFAULT_SENDER'], recipients, msg.as_string())
