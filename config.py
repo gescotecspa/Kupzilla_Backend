@@ -4,9 +4,9 @@ import os
 # Carga las variables de entorno desde el archivo .env
 load_dotenv()
 print("Cargando configuración desde .env...")
-print(os.getenv('SQLALCHEMY_DATABASE_URI'))
-print(os.getenv('SQLALCHEMY_DATABASE_URI'))
-print(os.getenv("SENDGRID_API_KEY", "No se encontró la API Key"))
+# print(os.getenv('SQLALCHEMY_DATABASE_URI'))
+# print(os.getenv('SQLALCHEMY_DATABASE_URI'))
+# print(os.getenv("SENDGRID_API_KEY", "No se encontró la API Key"))
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY')
     SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI')
