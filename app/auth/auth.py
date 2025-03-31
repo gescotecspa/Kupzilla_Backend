@@ -8,6 +8,8 @@ import random
 import string
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
+
+from app.models.status import Status
 from ..models.user import User
 from ..services.user_service import UserService
 from ..common.email_utils import send_email, send_email_reset_password
@@ -347,3 +349,35 @@ def signup_partners(current_user):
     return jsonify({
         'created_users': created_users
     }), 201
+
+@auth_blueprint.route('/delete-account', methods=['PATCH'])
+def delete_user():
+    data = request.get_json()
+
+    email = data.get('email')
+    password = data.get('password')
+
+    if not email or not password:
+        return jsonify({"message": "Email y contraseña son requeridos"}), 400
+
+    # Buscar el usuario por su email y asegurarse de que no tenga estado 'deleted'
+    user = User.query.filter(User.email == email).join(Status).filter(Status.name != 'deleted').first()
+
+    if not user:
+        return jsonify({"message": "Usuario no encontrado o ya eliminado"}), 404
+
+    # Verificar si la contraseña es correcta
+    if not check_password_hash(user.password, password):
+        return jsonify({"message": "Contraseña incorrecta"}), 401
+
+    # Buscar el estado 'deleted' en la base de datos
+    deleted_status = Status.query.filter_by(name='deleted').first()
+    if not deleted_status:
+        return jsonify({"message": "Estado 'deleted' no encontrado"}), 404
+
+    # Cambiar el estado del usuario a 'deleted'
+    user.status_id = deleted_status.id
+    db.session.commit()
+
+    return jsonify({"message": "Estado del usuario actualizado a 'deleted'"}), 200
+
