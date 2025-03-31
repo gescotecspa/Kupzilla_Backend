@@ -8,9 +8,11 @@ import random
 import string
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
+
+from app.models.status import Status
 from ..models.user import User
 from ..services.user_service import UserService
-from ..common.email_utils import send_email
+from ..common.email_utils import send_email, send_email_reset_password
 from datetime import datetime, timedelta, timezone
 import os
 from app import db
@@ -84,7 +86,7 @@ def login():
 
     user = UserService.get_user_by_email(data['email'])
     if not user:
-        return jsonify({'message': 'No existe el usuario'}), 404
+        return jsonify({'error_code': 'INVALID_USER'}), 404 # Aca en el usuario si no lo encuentra
 
     if check_password_hash(user.password, data['password']):
         try:
@@ -117,7 +119,8 @@ def login():
             db.session.rollback()  # Deshacer cambios en caso de error
             return jsonify({'message': f'Error al procesar el login: {str(e)}'}), 500
 
-    return jsonify({'message': 'Contraseña inválida'}), 401
+    return jsonify({'error_code': 'INVALID_PASSWORD'}), 401 # Lo mismo pero en el usuario 
+
 
 
 @auth_blueprint.route('/guest-login', methods=['POST'])
@@ -241,9 +244,13 @@ def reset_password_request():
     recipients = [email]
     html_body = render_template('email/reset_password.html', reset_code=reset_code, reset_url=reset_url)
 
-    send_email(subject, recipients, html_body)
+    email_sent = send_email_reset_password(subject, recipients, user.first_name, email, reset_code)
 
-    return jsonify({'message': 'Password reset email sent'}), 200
+
+    if email_sent:
+        return jsonify({'message': 'Password reset email sent'}), 200
+    else:
+        return jsonify({'message': 'Error sending email'}), 500
 
 @auth_blueprint.route('/reset_password/new_password', methods=['PUT'])
 def reset_password():
@@ -342,3 +349,35 @@ def signup_partners(current_user):
     return jsonify({
         'created_users': created_users
     }), 201
+
+@auth_blueprint.route('/delete-account', methods=['PATCH'])
+def delete_user():
+    data = request.get_json()
+
+    email = data.get('email')
+    password = data.get('password')
+
+    if not email or not password:
+        return jsonify({"message": "Email y contraseña son requeridos"}), 400
+
+    # Buscar el usuario por su email y asegurarse de que no tenga estado 'deleted'
+    user = User.query.filter(User.email == email).join(Status).filter(Status.name != 'deleted').first()
+
+    if not user:
+        return jsonify({"message": "Usuario no encontrado o ya eliminado"}), 404
+
+    # Verificar si la contraseña es correcta
+    if not check_password_hash(user.password, password):
+        return jsonify({"message": "Contraseña incorrecta"}), 401
+
+    # Buscar el estado 'deleted' en la base de datos
+    deleted_status = Status.query.filter_by(name='deleted').first()
+    if not deleted_status:
+        return jsonify({"message": "Estado 'deleted' no encontrado"}), 404
+
+    # Cambiar el estado del usuario a 'deleted'
+    user.status_id = deleted_status.id
+    db.session.commit()
+
+    return jsonify({"message": "Estado del usuario actualizado a 'deleted'"}), 200
+

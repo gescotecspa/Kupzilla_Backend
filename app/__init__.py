@@ -15,11 +15,6 @@ def create_app():
     # Configuración de la aplicación
     app.config.from_object('config.Config')
     
-    # Ruta para servir imágenes de emails
-    @app.route('/upload_image/static/<path:filename>')
-    def serve_email_images(filename):
-        return send_from_directory('/upload_image/static', filename)
-    
     # Inicializar SQLAlchemy con la aplicación Flask
     db.init_app(app)
     
@@ -90,7 +85,7 @@ def create_app():
     
     # Importar modelos para asegurarse de que se reconocen al crear la base de datos
     
-    from app.models import user, category, tourist, partner, promotion, branch, favorite, funcionality, role_funcionality, user_role, status, promotion_consumed, app_version
+    from app.models import user, category, tourist, partner, promotion, branch, favorite, funcionality, role_funcionality, user_role, status, promotion_consumed, app_version,country, city
 
     # Importar e inicializar los manejadores de errores
     # from app.common import error_handlers

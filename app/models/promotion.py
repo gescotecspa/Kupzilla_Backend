@@ -76,12 +76,14 @@ class PromotionImage(db.Model):
     image_id = db.Column(db.Integer, primary_key=True)
     promotion_id = db.Column(db.Integer, db.ForeignKey('promotions.promotion_id'))
     image_path = db.Column(db.Text, nullable=False)
+    is_main = db.Column(db.Boolean, default=False)
 
     def serialize(self):
         return {
             "image_id": self.image_id,
             "promotion_id": self.promotion_id,
-            "image_path": self.image_path
+            "image_path": self.image_path,
+            "is_main": self.is_main,
         }
 
     def __repr__(self):

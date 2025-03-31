@@ -10,4 +10,4 @@ if __name__ == '__main__':
     # Aquí puedes configurar opciones adicionales para la ejecución del servidor
     # como el puerto, el modo de depuración, etc.
     port = int(os.getenv('PORT', 7500))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    app.run(host='0.0.0.0', port=port, debug=True)

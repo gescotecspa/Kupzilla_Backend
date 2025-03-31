@@ -49,23 +49,38 @@ class BranchListResource(Resource):
 class PartnerBranchesResource(Resource):
     @token_required
     def get(self, current_user, partnerId):
-        
+        # if isinstance(current_user, dict):
+        #     # Verifica si es un invitado
+        #     if current_user.get("is_guest"):
+        #         print("Es invitado primer ingreso?", current_user.get("is_guest"))
+        #         return {"message": "Acceso denegado: solo usuarios registrados pueden acceder a esta ruta."}, 403
+        # else:
+        #     # Verifica si el usuario registrado es un invitado
+        #     if hasattr(current_user, "is_guest") and current_user.is_guest:
+        #         print("Es invitado segundo?", current_user.is_guest)
+        #         return {"message": "Acceso denegado: solo usuarios registrados pueden acceder a esta ruta."}, 403
+
         branches = BranchService.get_branches_by_partner_id(partnerId)
         if branches:
             return jsonify([branch.serialize() for branch in branches])
         return branches, 200
     
-
-class AdminBranchesResource(Resource):
+class ActiveBranchesByCountryResource(Resource):
     @token_required
-    def get(self, current_user):
-        branches = BranchService.get_all_branches_admin()
-        if branches:
-            return jsonify([branch.serialize() for branch in branches])
-        return branches, 200
+    def get(self, current_user, country_id):
+        branches = BranchService.get_active_branches_by_country(country_id)
+        return jsonify([branch.serialize() for branch in branches])
+class BranchImagesResource(Resource):
+    @token_required
+    def delete(self, current_user):
+        data = request.get_json()
+        image_ids = data.get("image_ids", [])
 
+        BranchService.delete_branch_images(image_ids)
+        return {'message': 'Images deleted successfully'}, 200
 
+api.add_resource(BranchImagesResource, '/branches/images')
 api.add_resource(BranchResource, '/branches/<int:branch_id>')
 api.add_resource(BranchListResource, '/branches')
 api.add_resource(PartnerBranchesResource, '/partners/<int:partnerId>/branches')
-api.add_resource(AdminBranchesResource, '/branches_admin')
+api.add_resource(ActiveBranchesByCountryResource, '/countries/<int:country_id>/branches')
